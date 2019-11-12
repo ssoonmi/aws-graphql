@@ -1,7 +1,5 @@
 const { GraphQLObjectType, GraphQLID, GraphQLString } = require('graphql');
-const AWS = require("aws-sdk");
-AWS.config.loadFromPath("./credentials.json");
-const s3 = new AWS.S3({ apiVersion: "2006-03-01" });
+const s3 = require('./s3');
 
 const UserType = new GraphQLObjectType({
   name: 'UserType',
@@ -9,6 +7,7 @@ const UserType = new GraphQLObjectType({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
     email: { type: GraphQLString },
+    // to retrieve the image from aws
     image: { 
       type: GraphQLString,
       resolve(parentValue) {
