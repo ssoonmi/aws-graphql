@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const expressGraphQL = require('express-graphql');
+// import graphQLUploadExpress
 const { graphqlUploadExpress } = require('graphql-upload');
 const db = require("../config/keys").mongoURI;
 require('./models');
@@ -14,8 +15,11 @@ mongoose
 
 app.use(cors());
 
+// don't need to use bodyParser
+
 app.use(
   "/graphql",
+  // use graphQLUploadExpress as the middleware for /graphql path
   graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }),
   expressGraphQL({
     schema,

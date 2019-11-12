@@ -32,13 +32,11 @@ class CreateUser extends React.Component {
   updateCache(cache, { data }) {
     let users;
     try {
-      // if we've already fetched the posts then we can read the
-      // query here
       users = cache.readQuery({ query: FETCH_USERS });
     } catch (err) {
       return;
     }
-    // if we had previously fetched products we'll add our new product to our cache
+    
     if (users) {
       let userArray = users.users;
       let newUser = data.newUser;
@@ -80,6 +78,7 @@ class CreateUser extends React.Component {
                   value={this.state.email}
                   placeholder="Email"
                 />
+                {/* define input type=file in a specific way */}
                 <input
                   type="file"
                   required
