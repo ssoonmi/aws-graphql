@@ -151,7 +151,12 @@ Now that we have upload to AWS S3 in our backend set up, we also need to be able
 We can do so by using the function `getSignedUrl` on the package, `aws-sdk`.
 
 ### `getSignedUrl`
-`getSignedUrl` is expecting us to give it the key that we saved to our database. 
+`getSignedUrl` generates a secure url using our AWS credentials for our file that we uploaded and allows us to keep our AWS S3 files private.
+
+**We do not need to make any of the files or the bucket on AWS S3 public if we use `getSignedUrl`**
+
+It expects us to give it the key that we saved to our database. 
+
 ```javascript
 const params = { Bucket: '<Name of your bucket>', Key: '<Key that we saved to our database>' };
 const url = s3.getSignedUrl('getObject', params);
@@ -201,3 +206,93 @@ module.exports = UserType;
 ```
 
 **Great! Now we finally finished setting up the backend. Let's set up the frontend.**
+
+## 6. Configuring Apollo Client in our frontend
+Instead of using `createHttpLink` from `apollo-link-http`, we will be using `createUploadLink` from `apollo-upload-client` in our `client/index.js` file.
+
+### `createUploadLink` from apollo-link-client
+`createUploadLink` is what we will use in place of `createHttpLink`. We can invoke `createUploadLink` with the same options object that we passed into `createHttpLink`.
+
+It will allow us to file upload using GraphQL on our frontend.
+
+> To learn more about the function `createUploadLink`, see here:
+> [https://github.com/jaydenseric/apollo-upload-client#function-createuploadlink](https://github.com/jaydenseric/apollo-upload-client#function-createuploadlink)
+
+```javascript
+//... other imports
+import { createUploadLink } from 'apollo-upload-client';
+
+//... setting up cache
+
+let uri = "http://localhost:5000/graphql";
+
+if (process.env.NODE_ENV === 'production') {
+  uri = "https://aws-s3-graphql.herokuapp.com/graphql";
+}
+
+const httpLink = createUploadLink({
+  uri,
+  headers: {
+    authorization: localStorage.getItem("auth-token")
+  }
+});
+
+const client = new ApolloClient({
+  uri,
+  link: httpLink,
+  cache,
+  onError: ({ networkError, graphQLErrors }) => {
+    console.log("graphQLErrors", graphQLErrors);
+    console.log("networkError", networkError);
+  }
+});
+
+```
+
+## 7. Queries on our frontend
+Queries will stay the same as they were before.
+
+## 8. Mutations on our frontend
+Mutations are the way that we post information to our backend. 
+
+Two files to look at are `client/src/graphql/mutations.js` and `client/src/components/CreateUser.js`
+
+### Defining a GraphQL Mutation
+In `client/src/graphql/mutations.js`, we are defining a mutation called `CreateUser` that will be able to accept the variables, `name`, `email`, and `image`. `name` and `email`'s types will be `String`, but the `image`'s type will be `Upload`.
+
+```javascript
+import gql from "graphql-tag";
+
+// the type for $image is Upload
+export const CREATE_USER = gql`
+  mutation CreateUser($name: String!, $email: String!, $image: Upload!) {
+    newUser(name: $name, email: $email, image: $image) {
+      id
+      name
+      email
+      image
+    }
+  }
+`;
+```
+
+### Making an Apollo Mutation
+In `client/src/components/CreateUser.js`, we are making the component `CreateUser` that will make the `CreateUser` mutation once the form is submitted.
+
+The only thing that looks out of the ordinary from a regular Apollo Mutation is how the input type file is defined inside of the form. 
+
+```javascript
+<input
+  type="file"
+  required
+  onChange={({
+    target: {
+      validity,
+      files: [file]
+    }
+  }) => validity.valid && this.setState({ image: file })}
+/>
+```
+
+**And voila! We finished setting up the frontend to accept files in GraphQL!
+
