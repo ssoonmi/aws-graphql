@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon --inspect index.js --ignore client"
+    "dev": "nodemon --inspect index.js --ignore client",
+    "client-install": "npm install --prefix client",
+    "client-build": "npm run build --prefix client",
+    "client": "npm run start --prefix client"
   },
   "keywords": [],
   "author": "",

@@ -1,5 +1,5 @@
 const { GraphQLObjectType, GraphQLID, GraphQLString } = require('graphql');
-const s3 = require('./s3');
+const { s3 } = require('./s3');
 
 const UserType = new GraphQLObjectType({
   name: 'UserType',
