@@ -87,7 +87,7 @@ class CreateUser extends React.Component {
                       validity,
                       files: [file]
                     }
-                  }) => validity.valid && this.updateImage(file)}
+                  }) => validity.valid && this.setState({ image: file })}
                 />
                 <input type="submit" value="Create User" />
               </form>
