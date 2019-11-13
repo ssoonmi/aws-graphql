@@ -16,15 +16,21 @@ const cache = new InMemoryCache({
   dataIdFromObject: object => object._id || null
 });
 
+let uri = "http://localhost:5000/graphql";
+
+if (process.env.NODE_ENV === 'production') {
+  uri = "https://aws-s3-graphql.herokuapp.com/graphql";
+}
+
 const httpLink = createUploadLink({
-  uri: "http://localhost:5000/graphql",
+  uri,
   headers: {
     authorization: localStorage.getItem("auth-token")
   }
 });
 
 const client = new ApolloClient({
-  uri: "http://localhost:5000/graphql",
+  uri,
   link: httpLink,
   cache,
   onError: ({ networkError, graphQLErrors }) => {
