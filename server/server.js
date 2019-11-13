@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const expressGraphQL = require('express-graphql');
 // import graphQLUploadExpress
 const { graphqlUploadExpress } = require('graphql-upload');
-const db = require("../config/keys").mongoURI;
+const db = require("./config/keys").mongoURI;
 require('./models');
 const cors = require("cors");
 const schema = require('./schema/schema');
@@ -13,7 +13,11 @@ mongoose
 .then(() => console.log("Connected to MongoDB successfully"))
 .catch(err => console.log(err));
 
-app.use(cors());
+if (process.env.NODE_ENV !== 'production') {
+  let origin = "http://localhost:3000";
+  app.use(cors({ origin }));
+}
+
 
 // don't need to use bodyParser
 
@@ -27,6 +31,11 @@ app.use(
   })
 );
 
-app.get("/", (req, res) => res.send("Hello World"));
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static("client/build"));
+  app.get("/", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+  });
+}
 
 module.exports = app;

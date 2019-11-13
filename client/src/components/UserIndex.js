@@ -8,7 +8,6 @@ function UserIndex() {
       {({ loading, errors, data }) => {
         if (loading) return "Loading...";
         if (errors) return "Errors ${errors.message}";
-        console.log(data);
         return (
           <ul>
             {data.users.map(user => {
